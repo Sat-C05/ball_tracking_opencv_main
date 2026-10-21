@@ -1,179 +1,99 @@
-# Real-Time Tennis Ball Detection with OpenCV 🎾
+# 🎾 Real-Time Tennis Ball Tracking & Interactive Game
 
-A modular Python application that detects and visually follows a yellow-green tennis ball using a live webcam.
+A real-time, gesture-controlled arcade game built with **Python and OpenCV**.
 
-The project uses classical computer vision techniques, including HSV color segmentation, morphological operations, contour analysis, shape filtering, and Exponential Moving Average (EMA) smoothing.
+The application detects a physical tennis ball through a webcam and uses its movement to interact with randomly generated targets in a 60-second scoring challenge.
 
 ## Features
 
-- Real-time webcam capture
-- Horizontally mirrored camera feed
-- HSV-based tennis ball detection
-- Gaussian blur for noise reduction
-- Morphological opening and closing
-- Contour area and circularity filtering
-- Ball center and radius estimation
-- EMA smoothing to reduce visual jitter
-- Temporary detection-loss tolerance
-- Live visualization of detection and HSV mask
+- **Real-time ball detection:** HSV segmentation, morphological operations, and contour filtering.
+- **Smooth tracking:** Exponential Moving Average (EMA) and a visual movement trail.
+- **Gesture-controlled gameplay:** Hold the ball inside START to trigger a 3-second countdown.
+- **Target collision detection:** Random rectangular targets with position and size validation.
+- **Game state management:** Finite-state machine controlling gameplay, scoring, feedback, and restart.
+- **Live interface:** Score, countdown timer, FPS monitoring, and final results.
+- **Debugging & testing:** HSV mask visualization and automated gameplay tests.
+
+## Tech Stack
+
+- Python
+- OpenCV
+- NumPy
 
 ## Project Structure
 
 ```text
-ball_tracker_modular/
-├── main.py
-├── detector.py
-├── config.py
+ball_tracking_opencv_main/
+├── main.py          # Webcam, tracking, UI and controls
+├── detector.py      # HSV segmentation and ball detection
+├── game.py          # Game states, scoring and collision logic
+├── config.py        # Detection configuration
+├── test_game.py     # Game logic tests
 ├── requirements.txt
-├── README.md
-└── .gitignore
+└── README.md
 ```
 
-### Module Responsibilities
-
-| Module | Responsibility |
-|---|---|
-| `main.py` | Webcam capture, mirroring, smoothing, visualization, and resource cleanup |
-| `detector.py` | Preprocessing, HSV segmentation, contour extraction, and candidate selection |
-| `config.py` | Color thresholds, detection constraints, and smoothing parameters |
-
-## Detection Pipeline
+## How It Works
 
 ```text
-Webcam Frame
-     |
-     v
-Horizontal Flip
-     |
-     v
-Gaussian Blur
-     |
-     v
-BGR to HSV Conversion
-     |
-     v
-HSV Color Thresholding
-     |
-     v
-Morphological Opening and Closing
-     |
-     v
-Contour Extraction
-     |
-     v
-Area, Circularity and Radius Filtering
-     |
-     v
-Largest Valid Candidate
-     |
-     v
-EMA Smoothing
-     |
-     v
-Detection Visualization
+Webcam → HSV Segmentation → Contour Filtering
+       → EMA Smoothing → Ball Coordinates
+       → Game State Machine → Collision Detection
+       → Score & Visual Feedback
 ```
 
-The detector processes individual frames and returns the largest qualifying candidate along with its binary mask. The main application maintains smoothed coordinates between frames.
+The detector identifies the tennis ball in each frame, while the game engine interprets its position according to the current game state.
 
-## Installation
+## Getting Started
 
-### Requirements
-
-- Python 3.10 or newer
-- Working webcam
-- OpenCV
-- NumPy
-
-### Setup
-
-Clone the repository:
+**1. Clone the repository**
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
-cd YOUR_REPOSITORY
+git clone https://github.com/Sat-C05/ball_tracking_opencv_main.git
+cd ball_tracking_opencv_main
 ```
 
-Create a virtual environment:
+**2. Create and activate a virtual environment**
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-Install dependencies:
+**3. Install dependencies**
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Run
+**4. Run the game**
 
 ```bash
 python main.py
 ```
 
-Press **Q** while an OpenCV window is focused to exit.
+**5. Run tests (optional)**
 
-## Configuration
+```bash
+python test_game.py
+```
 
-The detector's parameters are defined in `config.py`.
+## Controls
 
-| Parameter | Value | Purpose |
-|---|---|---|
-| Lower HSV | `[20, 40, 40]` | Lower color threshold |
-| Upper HSV | `[85, 255, 255]` | Upper color threshold |
-| Gaussian blur | `5×5` | Reduce pixel-level noise |
-| Morphological kernel | `5×5` | Clean binary mask |
-| Minimum contour area | `600` | Reject small regions |
-| Minimum circularity | `0.55` | Reject highly irregular regions |
-| Minimum radius | `10` | Reject small candidates |
-| EMA alpha | `0.75` | Balance responsiveness and jitter |
-| Maximum missed frames | `5` | Preserve smoothing state briefly |
-
-These values were calibrated experimentally and may need adjustment for different environments.
-
-## Detection Visualization
-
-The application displays:
-
-- **Yellow outline:** Detected contour
-- **Green circle:** Smoothed enclosing circle
-- **Red dot:** Smoothed center
-- **Text overlay:** Coordinates and contour circularity
-- **HSV Mask window:** Pixels matching the configured color range
-
-## Validation
-
-The prototype passed four manual functional tests:
-
-| Test | Result |
+| Control | Action |
 |---|---|
-| Stationary ball detection | Passed |
-| Fast hand-guided movement | Passed |
-| Distance variation | Passed |
-| Disappearance and recovery | Passed |
+| Hold ball inside START | Start or replay |
+| Move ball into target | Score |
+| `R` | Restart |
+| `D` | Toggle HSV debug mask |
+| `Q` | Quit |
 
-These are qualitative manual tests, not a benchmark of detection accuracy or frame rate.
+## Current Status
 
-## Known Limitations
+**Fully playable single-ball tracking game**, featuring gesture-based interaction, timed scoring, visual feedback, and automated gameplay tests.
 
-- Detection depends on the configured HSV color range.
-- Similarly colored objects may cause false positives.
-- Performance may vary with lighting, background, and motion blur.
-- Only the largest qualifying candidate is selected per frame.
-- Temporary detection-loss handling retains smoothing state but does not predict motion.
-- The system does not maintain persistent identities or track multiple balls.
+**Known limitations:** Detection depends on lighting and HSV calibration. The system tracks one ball at a time and does not maintain persistent object identities.
 
-## Future Improvements
+### Future Improvements
 
-- Adjustable HSV calibration interface
-- Additional shape and appearance validation
-- Detection confidence estimation
-- Recorded-video testing
-- Quantitative accuracy and latency evaluation
-
-## Project Status
-
-**Functional modular single-ball detection prototype.**
-
-Designed to demonstrate real-time visual detection and following of a hand-moved tennis ball using a webcam.
+Multi-ball tracking, adjustable difficulty, interactive HSV calibration, and persistent high scores.
